@@ -182,10 +182,13 @@ Note: In a real report, Claude AI would analyze actual CrowdStrike data and prov
 
 ### MCP Installation
 
-The Model Context Protocol (MCP) package is required for Claude AI integration but is not available on PyPI. To install it:
+The Model Context Protocol (MCP) package is required for Claude AI integration. To install and set up MCP:
 
-1. Visit [modelcontextprotocol.io/quickstart/user](https://modelcontextprotocol.io/quickstart/user)
-2. Follow the installation instructions for your platform
+1. Visit [MCP for Developers](https://modelcontextprotocol.io/quickstart/server) for detailed installation instructions
+2. Follow the server setup guide to:
+   - Install the MCP SDK
+   - Configure your environment
+   - Set up the server connection
 3. Verify the installation with `python -c "import mcp"`
 
 Note: The security checks in this repository will skip MCP-related files as they are managed separately.
