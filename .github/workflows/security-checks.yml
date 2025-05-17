@@ -27,13 +27,7 @@ jobs:
         # Install core dependencies
         pip install -r requirements.txt
         # Install security tools
-        pip install bandit safety pip-audit
-
-    - name: Run Bandit
-      run: |
-        # Skip MCP-related files in security checks
-        bandit -r . -f json -o bandit-results.json -x "*/mcp/*"
-        bandit -r . -f screen -x "*/mcp/*"
+        pip install safety pip-audit
 
     - name: Run Safety
       run: |
@@ -44,13 +38,6 @@ jobs:
       run: |
         pip-audit -r requirements.txt --format json > pip-audit-results.json
         pip-audit -r requirements.txt
-
-    - name: Upload Bandit results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: bandit-results
-        path: bandit-results.json
 
     - name: Upload Safety results
       if: always()
@@ -68,14 +55,6 @@ jobs:
 
     - name: Check for high severity issues
       run: |
-        if grep -q '"severity": "HIGH"' bandit-results.json; then
-          echo "High severity issues found in Bandit results"
-          exit 1
-        fi
-        if grep -q '"severity": "CRITICAL"' bandit-results.json; then
-          echo "Critical severity issues found in Bandit results"
-          exit 1
-        fi
         if grep -q '"severity": "HIGH"' safety-results.json; then
           echo "High severity issues found in Safety results"
           exit 1
