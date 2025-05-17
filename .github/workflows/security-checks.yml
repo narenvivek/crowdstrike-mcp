@@ -1,0 +1,91 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install bandit safety pip-audit
+
+    - name: Run Bandit
+      run: |
+        bandit -r . -f json -o bandit-results.json
+        bandit -r . -f screen
+
+    - name: Run Safety
+      run: |
+        safety check -r requirements.txt --json > safety-results.json
+        safety check -r requirements.txt
+
+    - name: Run pip-audit
+      run: |
+        pip-audit -r requirements.txt --format json > pip-audit-results.json
+        pip-audit -r requirements.txt
+
+    - name: Upload Bandit results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-results
+        path: bandit-results.json
+
+    - name: Upload Safety results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: safety-results
+        path: safety-results.json
+
+    - name: Upload pip-audit results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pip-audit-results
+        path: pip-audit-results.json
+
+    - name: Check for high severity issues
+      run: |
+        if grep -q '"severity": "HIGH"' bandit-results.json; then
+          echo "High severity issues found in Bandit results"
+          exit 1
+        fi
+        if grep -q '"severity": "CRITICAL"' bandit-results.json; then
+          echo "Critical severity issues found in Bandit results"
+          exit 1
+        fi
+        if grep -q '"severity": "HIGH"' safety-results.json; then
+          echo "High severity issues found in Safety results"
+          exit 1
+        fi
+        if grep -q '"severity": "CRITICAL"' safety-results.json; then
+          echo "Critical severity issues found in Safety results"
+          exit 1
+        fi
+        if grep -q '"severity": "HIGH"' pip-audit-results.json; then
+          echo "High severity issues found in pip-audit results"
+          exit 1
+        fi
+        if grep -q '"severity": "CRITICAL"' pip-audit-results.json; then
+          echo "Critical severity issues found in pip-audit results"
+          exit 1
+        fi 

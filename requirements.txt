@@ -1,0 +1,7 @@
+httpx>=0.28.1
+python-dotenv>=1.0.0
+PyJWT>=2.8.0
+mcp>=1.9.0
+bandit>=1.7.7
+safety>=2.3.5
+pip-audit>=2.6.1 
