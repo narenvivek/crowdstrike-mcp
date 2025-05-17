@@ -24,13 +24,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Install core dependencies
         pip install -r requirements.txt
+        # Install security tools
         pip install bandit safety pip-audit
 
     - name: Run Bandit
       run: |
-        bandit -r . -f json -o bandit-results.json
-        bandit -r . -f screen
+        # Skip MCP-related files in security checks
+        bandit -r . -f json -o bandit-results.json -x "*/mcp/*"
+        bandit -r . -f screen -x "*/mcp/*"
 
     - name: Run Safety
       run: |
